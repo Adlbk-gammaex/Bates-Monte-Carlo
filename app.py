@@ -6,9 +6,13 @@ from bates_model import simulate_bates
 
 st.set_page_config(page_title="Quantum Valuation of Stocks by Adilbek Mukhambetov", layout="wide")
 
+# Настраиваем стили для карточек: темный фон, белый крупный текст
 st.markdown("""
     <style>
-    .metric-box { background-color: #f0f2f6; padding: 15px; border-radius: 10px; text-align: center; }
+    .metric-box-risk { background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 12px; text-align: center; }
+    .metric-box-avg { background-color: #1a5276; color: #ffffff; padding: 20px; border-radius: 12px; text-align: center; }
+    .metric-box-max { background-color: #196f3d; color: #ffffff; padding: 20px; border-radius: 12px; text-align: center; }
+    .analytics-text { font-size: 16pt; font-weight: bold; color: #1b2631; line-height: 1.6; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -56,11 +60,11 @@ if st.button("Calculate future options"):
                 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.markdown(f"<div class='metric-box'><b>Risk Minimum (Panic)</b><br><h2>${lower_bound:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box-risk'><span style='font-size: 13pt; font-weight: bold;'>Risk Minimum (Panic)</span><br><span style='font-size: 26pt; font-weight: 800;'>${lower_bound:.2f}</span></div>", unsafe_allow_html=True)
                 with col2:
-                    st.markdown(f"<div class='metric-box' style='background-color: #e3f2fd;'><b>Mathematical Average</b><br><h2>${average_price:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box-avg'><span style='font-size: 13pt; font-weight: bold;'>Mathematical Average</span><br><span style='font-size: 26pt; font-weight: 800;'>${average_price:.2f}</span></div>", unsafe_allow_html=True)
                 with col3:
-                    st.markdown(f"<div class='metric-box' style='background-color: #e8f5e9;'><b>Uptrend Maximum</b><br><h2>${upper_bound:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box-max'><span style='font-size: 13pt; font-weight: bold;'>Uptrend Maximum</span><br><span style='font-size: 26pt; font-weight: 800;'>${upper_bound:.2f}</span></div>", unsafe_allow_html=True)
                 
                 st.write("")
                 st.info(f"Investor Analytics: In a positive market scenario based on Geometric Brownian Motion, {ticker} stock has a mathematical growth potential of up to {growth_potential:.1f}% from its current price over the next 3 months.")
@@ -68,28 +72,27 @@ if st.button("Calculate future options"):
                 st.write("")
                 st.subheader("Visualization of parallel universes Monte Carlo:")
                 
-                # Создаем красивый яркий график
-                fig, ax = plt.subplots(figsize=(12, 6))
+                fig, ax = plt.subplots(figsize=(12, 6.5))
                 
-                # Используем яркую палитру 'plasma' для генерации неоновых цветов линий
-                colors = plt.cm.plasma(np.linspace(0.1, 0.9, 150))
+                # Используем спектральную палитру 'jet' для максимального разнообразия цветов линий
+                colors = plt.cm.jet(np.linspace(0.0, 1.0, 150))
                 
-                # Рисуем первые 150 траекторий ярче и сочнее
+                # Отрисовка 150 разноцветных ярких траекторий Броуновского движения
                 for i in range(150):
-                    ax.plot(S[:, i], color=colors[i], alpha=0.5, linewidth=1.2)
+                    ax.plot(S[:, i], color=colors[i], alpha=0.55, linewidth=1.3)
                 
-                # Выделяем ключевые уровни жирными контрастными линиями
-                ax.axhline(average_price, color='#007bff', linestyle='--', linewidth=2.5, label=f'Mathematical Average: ${average_price:.2f}')
-                ax.axhline(upper_bound, color='#28a745', linestyle='-.', linewidth=2.5, label=f'Uptrend Target (95%): ${upper_bound:.2f}')
-                ax.axhline(S0, color='#dc3545', linestyle='-', linewidth=2, label=f'Current Price: ${S0:.2f}')
+                # Наносим три главные жирные контрольные линии
+                ax.axhline(average_price, color='#00bcff', linestyle='--', linewidth=3, label=f'Mathematical Average: ${average_price:.2f}')
+                ax.axhline(upper_bound, color='#2ecc71', linestyle='-.', linewidth=3, label=f'Uptrend Target (95%): ${upper_bound:.2f}')
+                ax.axhline(S0, color='#e74c3c', linestyle='-', linewidth=2.5, label=f'Current Price: ${S0:.2f}')
                 
-                # Кастомизация внешнего вида (стильная темноватая сетка)
+                # Стилизация осей и сетки
                 ax.set_title(f"Bates Model Simulation Trajectories for {ticker}", fontsize=14, fontweight='bold', pad=15)
                 ax.set_xlabel("Modeling Days (steps)", fontsize=11, labelpad=10)
                 ax.set_ylabel("Stock Price ($)", fontsize=11, labelpad=10)
                 
                 ax.grid(True, linestyle=':', alpha=0.6, color='gray')
-                ax.set_facecolor('#fafafa') # Легкий приятный фон для контраста ярких линий
+                ax.set_facecolor('#fafafa')
                 fig.patch.set_facecolor('#ffffff')
                 
                 ax.legend(loc='upper left', fontsize=10, frameon=True, shadow=True)
