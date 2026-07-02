@@ -12,7 +12,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Smart stock simulator based on geometric Brownian motion using Bates & Monte Carlo methodology")
+st.title("Smart stock simulator based on geometric Brownian motion using Bates & Monte Carlo methodology by Adilbek Mukhambetov")
 st.write("Enter the ticker symbol of a company (for example: NVDA, AAPL, TSLA). The system will automatically download the data and calculate 10,000 future possible scenarios.")
 
 ticker = st.text_input("Enter company ticker symbol (US):", value="NVDA").upper().strip()
