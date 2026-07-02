@@ -12,7 +12,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Smart stock simulator based on geometric Brownian motion using Bates & Monte Carlo methodology by Adilbek Mukhambetov")
+st.title("Smart stock simulator based on geometric Brownian motion using Bates & Monte Carlo methodology")
 st.write("Enter the ticker symbol of a company (for example: NVDA, AAPL, TSLA). The system will automatically download the data and calculate 10,000 future possible scenarios.")
 
 ticker = st.text_input("Enter company ticker symbol (US):", value="NVDA").upper().strip()
@@ -44,36 +44,55 @@ if st.button("Calculate future options"):
                 
                 final_prices = S[-1]
                 
-                lower_bound = np.percentile(final_prices, 2.5)
-                upper_bound = np.percentile(final_prices, 97.5)
+                lower_bound = np.percentile(final_prices, 5.0)
+                upper_bound = np.percentile(final_prices, 95.0)
                 
                 realistic_prices = final_prices[(final_prices >= lower_bound) & (final_prices <= upper_bound)]
                 average_price = np.mean(realistic_prices)
                 
-                st.subheader("Realistic forecast of the price corridor for 3 months ahead (95% confidence interval):")
+                growth_potential = ((upper_bound - S0) / S0) * 100
+                
+                st.subheader("Trajectory Analysis and 3-Month Price Potential:")
                 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.markdown(f"<div class='metric-box'>📉 <b>Pessimistic outcome (2.5%)</b><br><h2>${lower_bound:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box'><b>Risk Minimum (Panic)</b><br><h2>${lower_bound:.2f}</h2></div>", unsafe_allow_html=True)
                 with col2:
-                    st.markdown(f"<div class='metric-box' style='background-color: #e3f2fd;'>⭐ <b>Average Possible Price</b><br><h2>${average_price:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box' style='background-color: #e3f2fd;'><b>Mathematical Average</b><br><h2>${average_price:.2f}</h2></div>", unsafe_allow_html=True)
                 with col3:
-                    st.markdown(f"<div class='metric-box'>📈 <b>Optimistic outcome (97.5%)</b><br><h2>${upper_bound:.2f}</h2></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='metric-box' style='background-color: #e8f5e9;'><b>Uptrend Maximum</b><br><h2>${upper_bound:.2f}</h2></div>", unsafe_allow_html=True)
                 
                 st.write("")
-                st.subheader("📊 Visualization of parallel universes Monte Carlo:")
+                st.info(f"Investor Analytics: In a positive market scenario based on Geometric Brownian Motion, {ticker} stock has a mathematical growth potential of up to {growth_potential:.1f}% from its current price over the next 3 months.")
                 
-                fig, ax = plt.subplots(figsize=(12, 5.5))
-                ax.plot(S[:, :150], alpha=0.35, linewidth=1) 
+                st.write("")
+                st.subheader("Visualization of parallel universes Monte Carlo:")
                 
-                ax.axhline(average_price, color='red', linestyle='--', linewidth=2.5, label=f'Average Possible: ${average_price:.2f}')
-                ax.axhline(S0, color='black', linestyle=':', linewidth=2, label=f'Starting Price: ${S0:.2f}')
+                # Создаем красивый яркий график
+                fig, ax = plt.subplots(figsize=(12, 6))
                 
-                ax.set_title(f"Bates model simulation trajectories for {ticker}", fontsize=14, fontweight='bold')
-                ax.set_xlabel("Modeling Days (steps)", fontsize=11)
-                ax.set_ylabel("Stock Price ($)", fontsize=11)
-                ax.grid(True, linestyle='--', alpha=0.5)
-                ax.legend(loc='upper left', fontsize=10)
+                # Используем яркую палитру 'plasma' для генерации неоновых цветов линий
+                colors = plt.cm.plasma(np.linspace(0.1, 0.9, 150))
+                
+                # Рисуем первые 150 траекторий ярче и сочнее
+                for i in range(150):
+                    ax.plot(S[:, i], color=colors[i], alpha=0.5, linewidth=1.2)
+                
+                # Выделяем ключевые уровни жирными контрастными линиями
+                ax.axhline(average_price, color='#007bff', linestyle='--', linewidth=2.5, label=f'Mathematical Average: ${average_price:.2f}')
+                ax.axhline(upper_bound, color='#28a745', linestyle='-.', linewidth=2.5, label=f'Uptrend Target (95%): ${upper_bound:.2f}')
+                ax.axhline(S0, color='#dc3545', linestyle='-', linewidth=2, label=f'Current Price: ${S0:.2f}')
+                
+                # Кастомизация внешнего вида (стильная темноватая сетка)
+                ax.set_title(f"Bates Model Simulation Trajectories for {ticker}", fontsize=14, fontweight='bold', pad=15)
+                ax.set_xlabel("Modeling Days (steps)", fontsize=11, labelpad=10)
+                ax.set_ylabel("Stock Price ($)", fontsize=11, labelpad=10)
+                
+                ax.grid(True, linestyle=':', alpha=0.6, color='gray')
+                ax.set_facecolor('#fafafa') # Легкий приятный фон для контраста ярких линий
+                fig.patch.set_facecolor('#ffffff')
+                
+                ax.legend(loc='upper left', fontsize=10, frameon=True, shadow=True)
                 
                 st.pyplot(fig)
                 st.caption("The forecast is a mathematical model of risks and does not guarantee the result on the exchange.")
